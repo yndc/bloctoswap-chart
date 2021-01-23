@@ -46,31 +46,46 @@
         fetchPrices()
         setInterval(function () {
             fetchPrices()
-        }, 60000)
+        }, 10000)
+
+        var chart = undefined
 
         function updateChart(dataPoints) {
-            var chart = new ApexCharts(document.getElementById("chart"), {
-                series: [{
-                    data: dataPoints,
-                }],
-                chart: {
-                    type: 'candlestick',
-                    height: 350
-                },
-                title: {
-                    text: 'FLOW / tUSDT',
-                    align: 'left'
-                },
-                xaxis: {
-                    type: 'datetime'
-                },
-                yaxis: {
+            if (chart === undefined) {
+                chart = new ApexCharts(document.getElementById("chart"), {
+                    series: [{
+                        data: dataPoints,
+                    }],
+                    chart: {
+                        type: 'candlestick',
+                        height: 400
+                    },
+                    title: {
+                        text: 'FLOW / tUSDT',
+                        align: 'left'
+                    },
+                    xaxis: {
+                        type: 'datetime'
+                    },
+                    yaxis: {
+                        tooltip: {
+                            enabled: true
+                        }
+                    },
                     tooltip: {
-                        enabled: true
+                        enabled: true,
+                        x: {
+                            show: true,
+                            format: 'HH:mm:ss'
+                        }
                     }
-                }
-            })
-            chart.render();
+                })
+                chart.render()
+            } else {
+                chart.updateSeries([{
+                    data: dataPoints
+                }])
+            }
         }
 
     </script>
@@ -82,21 +97,46 @@
         body {
             background-color: #fafafa;
         }
+
+        .container {
+            padding-right: 15px;
+            padding-left: 15px;
+            margin-right: auto;
+            margin-left: auto;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                width: 750px;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .container {
+                width: 970px;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .container {
+                width: 1170px;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <p>
-        This is a temporary page showing the price of FLOW in BloctoSwap.
-        <a href="https://swap.blocto.app/#/swap">FLOW/tUSDT</a>
-
-        <br />
-        <br />
-
-        <b>FLOW is not an ERC20 token, it's NOT in Uniswap!</b>
-    </p>
-    <div id="chart"></div>
-
+    <div class="container" style="padding-top: 15px">
+        <p>
+            This is a temporary page showing the price of FLOW in BloctoSwap.
+            <a href="https://swap.blocto.app/#/swap">FLOW/tUSDT</a>
+        </p>
+        <p>
+            <b>FLOW is not an ERC20 token, it's NOT in Uniswap!</b>
+        </p>
+        <p><small>1 candlestick is 15 minutes</small></p>
+        <div id="chart"></div>
+    </div>
 </body>
 
 </html>
