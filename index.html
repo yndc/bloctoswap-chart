@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+
+<head>
+    <title>BloctoSwap FLOW/tUSDT Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script type="text/javascript">
+        function fetchPrices() {
+            fetch("https://bloctoswap.web.app/price/mainnet/flow-tusdt")
+                .then(response => response.json())
+                .then(data => {
+                    const candleWidth = 900000
+                    const candlesticks = data.reverse().reduce((prev, curr) => {
+                        const price = Math.round(curr.price * 100000000) / 100000000
+                        if (prev.length > 0) {
+                            if (curr.timestamp - (prev[prev.length - 1].x.getTime()) < candleWidth) {
+                                if (price > prev[prev.length - 1].y[1]) {
+                                    prev[prev.length - 1].y[1] = price
+                                }
+                                if (price < prev[prev.length - 1].y[2]) {
+                                    prev[prev.length - 1].y[2] = price
+                                }
+                                return prev
+                            } else {
+                                prev[prev.length - 1].y[3] = price
+                                if (prev[prev.length - 1].y[1] < price) {
+                                    prev[prev.length - 1].y[1] = price
+                                }
+                            }
+                        }
+                        prev.push({
+                            x: new Date(curr.timestamp),
+                            y: [
+                                price,
+                                price,
+                                price,
+                                price,
+                            ]
+                        })
+                        return prev
+                    }, [])
+
+                    console.log(candlesticks)
+                    updateChart(candlesticks)
+                })
+        }
+
+        fetchPrices()
+        setInterval(function () {
+            fetchPrices()
+        }, 60000)
+
+        function updateChart(dataPoints) {
+            var chart = new ApexCharts(document.getElementById("chart"), {
+                series: [{
+                    data: dataPoints,
+                }],
+                chart: {
+                    type: 'candlestick',
+                    height: 350
+                },
+                title: {
+                    text: 'FLOW / tUSDT',
+                    align: 'left'
+                },
+                xaxis: {
+                    type: 'datetime'
+                },
+                yaxis: {
+                    tooltip: {
+                        enabled: true
+                    }
+                }
+            })
+            chart.render();
+        }
+
+    </script>
+    <style>
+        * {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: #fafafa;
+        }
+    </style>
+</head>
+
+<body>
+    <p>
+        This is a temporary page showing the price of FLOW in BloctoSwap.
+        <a href="https://swap.blocto.app/#/swap">FLOW/tUSDT</a>
+
+        <br />
+        <br />
+
+        <b>FLOW is not an ERC20 token, it's NOT in Uniswap!</b>
+    </p>
+    <div id="chart"></div>
+
+</body>
+
+</html>
